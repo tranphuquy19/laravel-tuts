@@ -1,0 +1,56 @@
+version : '3'
+
+# To start:     $ docker-compose up -d
+# To tear-down: $ docker-compose down --volumes
+
+services:
+  mysql:
+    image: mysql:latest
+    volumes:
+        - v_test_mysql:/var/lib/mysql
+        - ./.config/mysql/mysql.cnf:/etc/mysql/conf.d/mysql.cnf:ro
+    container_name: test_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root@123
+      MYSQL_DATABASE: test
+      TZ: 'Asia/Ho_Chi_Minh'
+    ports:
+        - 3306:3306
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: test_pma
+    depends_on:
+      - mysql
+    links:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    restart: always
+    ports:
+      - 3307:80
+
+  mongodb:
+      image: mongo
+      volumes:
+          - v_test_mongo:/data/db
+      container_name: test_mongo
+      environment:
+          - MONGO_INITDB_DATABASE=test
+      ports:
+          - 27017-27019:27017-27019
+
+  redis:
+      image: redis:alpine
+      container_name: test_redis
+      ports:
+        - 6379:6379
+      volumes:
+        - v_test_redis:/data
+
+volumes:
+  v_test_mysql: {}
+  v_test_mongo: {}
+  v_test_redis: {}
