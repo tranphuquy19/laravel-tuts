@@ -4,33 +4,31 @@ version : '3'
 # To tear-down: $ docker-compose down --volumes
 
 services:
-  mysql:
-    image: mysql:latest
+  postgres:
+    container_name: test_pgsql
+    image: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-root@123}
+      PGDATA: /data/postgres
     volumes:
-        - v_test_mysql:/var/lib/mysql
-        - ./.config/mysql/mysql.cnf:/etc/mysql/conf.d/mysql.cnf:ro
-    container_name: test_mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: root@123
-      MYSQL_DATABASE: test
-      TZ: 'Asia/Ho_Chi_Minh'
+       - v_test_pgsql:/data/postgres
     ports:
-        - 3306:3306
-
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: test_pma
-    depends_on:
-      - mysql
-    links:
-      - mysql
+      - "5432:5432"
+    restart: unless-stopped
+  
+  pgadmin:
+    container_name: test_pgadmin
+    image: dpage/pgadmin4
     environment:
-      PMA_HOST: mysql
-      PMA_PORT: 3306
-      PMA_ARBITRARY: 1
-    restart: always
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-tranphuquy19@gmail.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-root@123}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+       - v_test_pgadmin:/root/.pgadmin
     ports:
-      - 3307:80
+      - "5433:80"
+    restart: unless-stopped
 
   mongodb:
       image: mongo
@@ -51,6 +49,7 @@ services:
         - v_test_redis:/data
 
 volumes:
-  v_test_mysql: {}
+  v_test_pgsql: {}
+  v_test_pgadmin: {}
   v_test_mongo: {}
   v_test_redis: {}
