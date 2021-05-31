@@ -8,6 +8,7 @@ services:
     container_name: test_pgsql
     image: postgres
     environment:
+      POSTGRES_DB: laravel
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-root@123}
       PGDATA: /data/postgres
